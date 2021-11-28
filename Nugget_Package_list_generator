@@ -1,0 +1,14 @@
+This task was to use jenkins job to list all the packages and save them as artefacts in workspace
+The job was parameterized using the string parameter in order to allow me input the specific git repo
+
+Under the source code management, git was checked because git is our VCS (version control software). I called the repository url and use the neccessary credentials
+The branch to build was master, since the repo was under master
+
+Batch command in jenkins to call the python script:
+python -m pip install --upgrade pip
+pip install github3.py
+pip install pyGithub
+pip install lxml
+
+python Nuget_pkglist.py jenkins %jenkins_git_token% %Github_Org_Name%
+
