@@ -1,4 +1,5 @@
-This python script calls each of the nuget package and version from the json file in the git repo and parse the result in a jenkins job
+This python script calls each of the nuget package and version from the json file in the git repo.
+This script is run automatically in a jenkins job, which triggers another jenkins job (jenkins_url)
 
 import requests,json
 
