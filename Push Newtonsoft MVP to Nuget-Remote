@@ -1,0 +1,4 @@
+As a test to push one of the nugget package to Nuget remote Artifactory
+bat 'nuget push %NUGET_PAK%.%NUGET_Ver%.nupkg -NonInteractive -Source  https://artifactory.corp.88-internal.com/artifactory/api/nuget/nuget-dds-signing2/%NUGET_PAK%-MB/%NUGET_Ver% -apikey virus:%Art_Key%'
+
+Please, note that this script is just a section of the larger script in the jenkins job that helped to accomplish the task above
