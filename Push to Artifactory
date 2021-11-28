@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+		node {
+			label 'W2K12ENGBLD9'
+		}
+	}
+	
+	
+	parameters {
+        string(name: 'NUGET_PAK', defaultValue: '', description: 'Nuget Package ID')
+		string(name: 'NUGET_Ver', defaultValue: '', description: 'Nuget Package Version')
+	}
+	options {
+      timeout(time: 300, unit: 'SECONDS') 
+    }
+    
+    stages {
+        stage('Search and Download nuget') {
+            steps {
+			    cleanWs()
+				
+				powershell '''
+				    Write-Output "Downloading latest nuget.exe"
+				    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+				    Invoke-WebRequest -Uri \'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe\' -OutFile "nuget.exe"
+			        Write-Output "Download Complete"
+			    '''
+				
+				echo "Donwload and Extract Nuget!!"
+                //bat 'nuget.exe install newtonsoft.json -Version 13.0.1 -OutputDirectory extract -NoCache -PackageSaveMode nuspec'
+                bat 'nuget install %NUGET_PAK%-MB -Version %NUGET_Ver% -OutputDirectory Install_Test -NoCache -NonInteractive -PackageSaveMode nuspec -PreRelease'
+                echo "Donwload and Extract Complete!!"
+                
+        stage('Publish Nuget to artifactory') {
+            steps {
+				withCredentials([string(credentialsId: 'Artifactory_API_key', variable: 'Art_Key')]) {
+				bat 'nuget push %NUGET_PAK%-MB.%NUGET_Ver%.nupkg -NonInteractive -Source  https://artifactory.corp.mb-internal.com/artifactory/api/nuget/nuget-mb-remote/%NUGET_PAK%-MB/%NUGET_Ver% -apikey malwarebytes:%Art_Key%'
+            
+				    
+				      }
+            }
+        }
+    }
+}
+  
