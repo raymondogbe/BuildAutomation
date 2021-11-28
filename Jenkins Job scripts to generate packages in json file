@@ -1,0 +1,39 @@
+Again, this is a script from the larger code that helps to accomplish the task above
+
+This is the script:
+jsonlist = json.dumps(packageL, indent=3) 
+#print(jsonlist) 
+open("packagelist.json", "w" ).write(jsonlist)
+
+Format
+{
+   {
+      "EAContextMenu.redist",
+      "1.0.0.49"
+   },
+   {
+      "mbcommon.redist",
+      "3.2.0.845"
+   },
+   {
+      "EAServiceMonitor.redist",
+      "1.1.0.20"
+   },
+   {
+      "BCrypt.Net",
+      "0.1.0"
+   },
+  }
+  
+  {
+  "Packages": [
+    {
+      "package_name": "EAContextMenu.redist",
+      "package_ver": "1.0.0.49"
+    },
+    {
+      "package_name": "mbcommon.redist",
+      "package_ver": "3.2.0.845"
+    },
+    
+  }
