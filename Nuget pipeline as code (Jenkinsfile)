@@ -1,0 +1,75 @@
+pipeline {
+    agent {
+        label 'W2K12ENGBLD2'
+    }
+    parameters{
+                    string(name: 'BRANCH', defaultValue: 'ray-mb-tray', description: 'Branch to build.')
+                    string(name: 'Solution', defaultValue: 'Malwarebytes.UI.TrayNotification.sln', description: 'The solution file to build.')
+                    string(name: 'Configuration', defaultValue: 'Release', description: 'The configurations to build.')
+                    string(name: 'UserBinaries', defaultValue: 'Malwarebytes.UI.TrayNotification.dll', description: 'The user binaries to sign.')
+                    string(name: 'PackageName', defaultValue: 'MB.TrayNotifications.WPF', description: 'The NuGet package to build.')
+            }
+    stages {
+        stage('Clear Workspace') { 
+            steps { 
+                cleanWs()
+            } 
+        }
+        stage('Clone Repo') {
+            steps {
+                git branch: 'ray-mb-tray', credentialsId: 'ssh-jenkins-github.com', url: 'git@github.com:Malwarebytes/galaxy-mb-tray-wpf.git'
+            }
+        }
+        stage('Copy artifacts') {
+            steps {
+                copyArtifacts fingerprintArtifacts: true, projectName: 'tools-testing', selector: lastSuccessful()
+            }
+        }
+        stage('Update the nuspec version') {
+            steps {
+                bat "python update_nuspec_version.py %PackageName% %BUILD_NUMBER%"
+            }
+        }
+        stage('Versioning') {
+            steps {
+                bat "python BuildScripts/versionUpdatesTray.py"
+            }
+        }
+        stage('Build') {
+            steps {
+                bat "dotnet build -c Release src/Malwarebytes.UI.TrayNotification.sln"
+            }
+        }
+        stage('Signing Binaries') {
+            steps {
+                bat "windows/msbuild/GalaxySignBinaries.bat"
+            }
+        }
+        stage('Creating NuGet package') {
+            steps {
+                bat "nuget pack %PackageName%.nuspec"
+            }
+        }
+        stage('Store symbols') {
+            steps {
+                bat "windows/msbuild/GalaxyStoreSymbols22.bat"
+            }
+        }
+        stage('git tag') {
+            steps {
+                bat '''
+                    git tag -a "%Build_Number%" -m "Nuget build %Build_Number%" %GIT_COMMIT%
+
+                    git push --tags
+                '''
+            }
+        }
+        stage('Archive Artifacts') {
+            steps {
+                bat "archiveArtifacts artifacts: '*.nupkg, tools/**', caseSensitive: false, fingerprint: true, followSymlinks: false, onlyIfSuccessful: true"
+            }
+        }
+        
+        
+    }
+}
