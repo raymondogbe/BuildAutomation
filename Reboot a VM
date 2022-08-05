@@ -1,0 +1,32 @@
+Reboot a VM
+
+Groovy commmand
+def ServerName = "Computer Node name"
+
+
+import hudson.model.*
+import hudson.node_monitors.*
+import hudson.slaves.*
+import java.util.concurrent.*
+
+hudson = Hudson.instance
+for (slave in hudson.slaves) {
+    if (slave.name.startsWith(ServerName)) {
+        def computer = slave.computer
+        computer.disconnect();
+    }
+}
+
+
+
+
+Batch command
+psexec "\\hostname" cmd /c "net stop "jenkinsslave-c__Jenkins""
+psexec "\\host.corp.mb-external.com" cmd /c "nuget locals all -clear"
+REM psexec "\\host.corp.pm-external.com" cmd /c "C:\Scripts\FreeUpDiscSpace.bat"
+psexec "\\host.corp.pm-external.com" cmd /c "C:\Scripts\reboot.bat"
+Exit 0
+
+
+
+Configure this into a jenkins job
